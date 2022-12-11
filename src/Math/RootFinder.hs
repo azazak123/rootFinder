@@ -14,32 +14,33 @@ bisection a b f iterLimit eps
 iteration a b x f f' iterLimit eps
   | x < a || x > b = Nothing
   | iterLimit == 0 = Nothing
-  | abs (xn - x) < eps = Just xn
+  | abs (f xn) < eps = Just xn
   | otherwise = iteration a b xn f f' (iterLimit - 1) eps
   where
-    xn = x - a * f x
-    a
+    xn = x - coef * f x
+    coef
       | f' x > 0 = 2 / (minimumOnRange a b f' eps + maximumOnRange a b f' eps)
       | otherwise = -2 / (minimumOnRange a b f' eps + maximumOnRange a b f' eps)
 
-newton x f f' iterLimit eps
+newton a b x f f' iterLimit eps
+  | x < a || x > b = Nothing
   | iterLimit == 0 = Nothing
-  | abs (xn - x) < eps = Just xn
-  | otherwise = newton xn f f' (iterLimit - 1) eps
+  | abs (f xn) < eps = Just xn
+  | otherwise = newton a b xn f f' (iterLimit - 1) eps
   where
     xn = x - f x / f' x
 
 chord a b f FixRight iterLimit eps
   | iterLimit == 0 = Nothing
   | signum (f a) * signum (f b) > 0 = Nothing
-  | abs (x - a) < eps = Just x
+  | abs (f x) < eps = Just x
   | otherwise = chord x b f FixRight (iterLimit - 1) eps
   where
     x = a - f a * (b - a) / (f b - f a)
 chord a b f FixLeft iterLimit eps
   | iterLimit == 0 = Nothing
   | signum (f a) * signum (f b) > 0 = Nothing
-  | abs (x - b) < eps = Just x
+  | abs (f x) < eps = Just x
   | otherwise = chord a x f FixLeft (iterLimit - 1) eps
   where
     x = b - f b * (b - a) / (f b - f a)
